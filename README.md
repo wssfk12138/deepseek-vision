@@ -1,4 +1,6 @@
-# DeepSeek Vision 插件（Codex）
+# DeepSeek Vision —— 适用于 Codex 的视觉识别插件
+
+> **本项目是适用于 Codex 的插件（Plugin）**，需要安装到 Codex（ChatGPT 桌面应用或 Codex CLI）中使用；它不是独立软件、网站或浏览器扩展。安装后请在 Codex 中通过 `@deepseek-vision` 或直接描述任务来调用。
 
 给 Codex 里的 DeepSeek 等纯文本模型补上“眼睛”：图片分析、OCR、扫描 PDF 批量转文本、古籍影印区域保留、图片表格转可编辑表格、国际音标专项核对、DOCX 视觉渲染质检。
 

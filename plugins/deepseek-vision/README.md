@@ -1,5 +1,7 @@
 # DeepSeek Vision 插件
 
+> 这是一个 **Codex 插件**（Plugin），需在 Codex 中安装使用，不适用于其他未接入 Codex 插件的环境。
+
 给 Codex 里的 DeepSeek 等纯文本模型补上一双“眼睛”：通过 MCP 服务器调用多模态视觉 API，把图片、截图、PDF 变成文字结果，再交回 DeepSeek 继续推理。
 
 底层使用 GitHub 开源方案 [mcp-vision](https://github.com/hahahahanb/mcp-vision)（MIT 协议），默认调用硅基流动（SiliconFlow）上的 **Qwen3-VL-32B-Instruct** 付费视觉模型（通用理解更强），也可以切换回免费的 DeepSeek-OCR。
