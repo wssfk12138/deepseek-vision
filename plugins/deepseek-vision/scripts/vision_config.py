@@ -1,10 +1,7 @@
 """统一的视觉 API 配置解析与校验（供插件所有脚本共用）。
 
-优先级：
-1. MCP_OCR_PROVIDER=custom  -> 必须填写 MCP_OCR_BASE_URL / MCP_OCR_API_KEY / MCP_OCR_MODEL
-2. MCP_OCR_PROVIDER=硅基流动等预设 -> 使用预设地址，仍需填写对应 API Key
-
-新用户必须自行配置 API 请求地址与 API Key；插件不内置任何密钥。
+新用户必须自行配置 API 请求地址与 API Key；插件不内置任何密钥或默认地址。
+标准模板：MCP_OCR_PROVIDER=custom + MCP_OCR_BASE_URL + MCP_OCR_API_KEY + MCP_OCR_MODEL。
 """
 
 from __future__ import annotations
@@ -17,12 +14,6 @@ from dotenv import load_dotenv
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 
 PRESETS: dict[str, dict[str, str]] = {
-    "siliconflow": {
-        "base_url": "https://api.siliconflow.cn/v1",
-        "key_env": "SILICONFLOW_API_KEY",
-        "model_env": "SILICONFLOW_MODEL",
-        "default_model": "Qwen/Qwen3-VL-32B-Instruct",
-    },
     "dashscope": {
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "key_env": "DASHSCOPE_API_KEY",
@@ -68,7 +59,7 @@ def resolve_config() -> dict[str, str]:
         model = os.environ.get(preset["model_env"], "").strip() or preset["default_model"]
     else:
         raise ConfigError(
-            f"MCP_OCR_PROVIDER 不支持: {provider}（可选: custom / {', '.join(sorted(PRESETS))}）"
+            f"MCP_OCR_PROVIDER 不支持: {provider}（通用配置请使用 custom）"
         )
 
     missing = []

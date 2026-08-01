@@ -4,7 +4,7 @@
 
 给 Codex 里的 DeepSeek 等纯文本模型补上“眼睛”：图片分析、OCR、扫描 PDF 批量转文本、古籍影印区域保留、图片表格转可编辑表格、国际音标专项核对、DOCX 视觉渲染质检。
 
-底层视觉模型默认使用硅基流动（SiliconFlow）上的 Qwen3-VL-32B（付费，单张图片约 1 分钱），也可切换为免费的 DeepSeek-OCR 或其他 OpenAI 兼容接口。
+底层视觉模型由用户自行配置：在 `.env` 中填写 OpenAI 兼容 API 的请求地址、密钥与模型名即可（模板见 `plugins/deepseek-vision/assets/env.example`），费用与额度取决于你选择的 API 服务商。
 
 ## 功能一览
 
@@ -40,7 +40,7 @@ bash ~/plugins/deepseek-vision/scripts/setup.sh
 
 1. 下载本仓库代码（Code → Download ZIP），解压到 `%USERPROFILE%\plugins\deepseek-vision`；
 2. 运行 `scripts\setup.ps1`（Windows）或 `scripts\setup.sh`（macOS/Linux）；
-3. 编辑插件根目录 `.env`，填入**自己的** `SILICONFLOW_API_KEY`（[硅基流动](https://cloud.siliconflow.cn) 注册）；
+3. 编辑插件根目录 `.env`，填入**自己的** API 请求地址、密钥与模型名（模板见 `assets/env.example`）；
 4. 重启 Codex，从个人市场安装 deepseek-vision。
 
 ## 使用
@@ -49,7 +49,7 @@ bash ~/plugins/deepseek-vision/scripts/setup.sh
 
 ## 隐私与安全
 
-- 图片会发送到你配置的视觉 API 提供商（默认硅基流动），敏感图片请谨慎处理。
+- 图片会发送到你配置的视觉 API 提供商，敏感图片请谨慎处理。
 - 本仓库不包含任何 API 密钥；每个用户必须配置自己的密钥。
 - 剪贴板取图功能仅限 Windows。
 

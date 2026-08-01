@@ -85,6 +85,5 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host ''
 Write-Host '下一步：' -ForegroundColor Cyan
 Write-Host "  1. 编辑 $envFile：custom 模式需填写 MCP_OCR_BASE_URL / MCP_OCR_API_KEY / MCP_OCR_MODEL"
-Write-Host '     （或改用 siliconflow 预设只填 SILICONFLOW_API_KEY）'
 Write-Host '  2. 运行 scripts\check_config.py --ping 验证地址与密钥'
 Write-Host '  3. 在 Codex 中重新加载插件或重启会话'

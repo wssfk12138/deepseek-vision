@@ -4,7 +4,7 @@
 
 给 Codex 里的 DeepSeek 等纯文本模型补上一双“眼睛”：通过 MCP 服务器调用多模态视觉 API，把图片、截图、PDF 变成文字结果，再交回 DeepSeek 继续推理。
 
-底层使用 GitHub 开源方案 [mcp-vision](https://github.com/hahahahanb/mcp-vision)（MIT 协议），默认调用硅基流动（SiliconFlow）上的 **Qwen3-VL-32B-Instruct** 付费视觉模型（通用理解更强），也可以切换回免费的 DeepSeek-OCR。
+底层使用 GitHub 开源方案 [mcp-vision](https://github.com/hahahahanb/mcp-vision)（MIT 协议）。视觉模型由用户自行配置：在 `.env` 中填写 OpenAI 兼容 API 的请求地址、密钥与模型名即可，不依赖任何特定服务商。
 
 ## 工作原理
 
@@ -54,16 +54,9 @@ bash scripts/setup.sh
 ```ini
 # 自备 OpenAI 兼容视觉 API（推荐）
 MCP_OCR_PROVIDER=custom
-MCP_OCR_BASE_URL=https://api.siliconflow.cn/v1
+MCP_OCR_BASE_URL=https://api.example.com/v1
 MCP_OCR_API_KEY=sk-你的密钥
 MCP_OCR_MODEL=Qwen/Qwen3-VL-32B-Instruct
-```
-
-也可以改用预设简化配置（只填 Key，地址自动使用官方地址）：
-
-```ini
-MCP_OCR_PROVIDER=siliconflow
-SILICONFLOW_API_KEY=sk-你的密钥
 ```
 
 填写后运行配置自检（`--ping` 会实测地址与密钥）：
@@ -72,7 +65,7 @@ SILICONFLOW_API_KEY=sk-你的密钥
 .venv\Scripts\python.exe scripts\check_config.py --ping
 ```
 
-其他可选预设：dashscope（阿里百炼）、volcengine（火山引擎）、openai，完整变量见 [assets/env.example](assets/env.example)。
+如果你的服务商与某些预设兼容，可参考代码 `vision_config.py` 中的可用预设；通用配置模板见 [assets/env.example](assets/env.example)。
 
 ### 3. 在 Codex 中启用
 
@@ -168,4 +161,4 @@ python scripts\smoke_test.py
 
 ## 隐私说明
 
-图片会发送到你配置的视觉 API 提供商（默认硅基流动）。敏感图片请谨慎处理，或改用支持私有化部署的视觉模型。
+图片会发送到你配置的视觉 API 提供商。敏感图片请谨慎处理，或改用支持私有化部署的视觉模型。

@@ -43,5 +43,5 @@ DeepSeek 等文本模型没有原生视觉能力。当用户消息中出现图�
 
 - 支持格式：PNG、JPG、JPEG、GIF、BMP、WebP、PDF。
 - 若工具返回“未配置 API Key”之类的错误，说明视觉服务尚未配置：提示用户运行插件的 `scripts/setup.ps1`（Windows）或 `scripts/setup.sh`（macOS / Linux），并在 `.env` 中自行填写 API 请求地址（MCP_OCR_BASE_URL）、API Key（MCP_OCR_API_KEY）与模型名（MCP_OCR_MODEL），再用 `scripts/check_config.py --ping` 验证。
-- 默认使用硅基流动（SiliconFlow）的 Qwen3-VL-32B-Instruct 付费视觉模型，通用图像理解效果好；也可以切换为 Qwen3-VL-8B（更便宜）、DeepSeek-OCR（免费，适合纯文字提取）或自定义 OpenAI 兼容接口。
+- 视觉模型由用户在 `.env` 中自行配置（MCP_OCR_BASE_URL / MCP_OCR_API_KEY / MCP_OCR_MODEL），识别效果取决于所选模型；不支持特定服务商。
 - 视觉服务只负责“看图”，不要让它参与主模型的代码推理或决策。

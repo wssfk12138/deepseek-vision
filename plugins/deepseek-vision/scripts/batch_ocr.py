@@ -41,9 +41,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--end", type=int, default=0, help="结束页码（默认到最后）")
     parser.add_argument("--dpi", type=int, default=200, help="渲染分辨率（默认 200）")
     parser.add_argument("--workers", type=int, default=3, help="并行 OCR 数（默认 3）")
-    parser.add_argument("--model", default="", help="视觉模型（默认读 .env 的 SILICONFLOW_MODEL）")
+    parser.add_argument("--model", default="", help="视觉模型（默认读 .env 的 MCP_OCR_MODEL）")
     parser.add_argument("--base-url", default="", help="OpenAI 兼容 API 地址（默认读 .env 的 MCP_OCR_BASE_URL）")
-    parser.add_argument("--api-key", default="", help="API Key（默认读 .env 的 SILICONFLOW_API_KEY）")
+    parser.add_argument("--api-key", default="", help="API Key（默认读 .env 的 MCP_OCR_API_KEY）")
     parser.add_argument("--max-tokens", type=int, default=4096, help="单页最大输出 token（默认 4096）")
     parser.add_argument("--prompt", default=DEFAULT_PROMPT, help="自定义 OCR 提示词")
     parser.add_argument(

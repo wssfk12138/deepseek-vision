@@ -7,7 +7,7 @@ scripts\package_share.ps1 -Out "C:\Users\Me\Desktop\deepseek-vision.zip" -Versio
 #>
 param(
     [string]$Out = "",
-    [string]$Version = "1.2.0"
+    [string]$Version = "1.3.0"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -65,7 +65,7 @@ try {
     Write-Host "接收方安装步骤："
     Write-Host "  1. 解压到 %USERPROFILE%\plugins\deepseek-vision"
     Write-Host "  2. 运行 scripts\setup.ps1（自动装依赖并生成 .env）"
-    Write-Host "  3. 在 .env 填入自己的 SILICONFLOW_API_KEY"
+    Write-Host "  3. 在 .env 填入自己的 API 请求地址与 API Key"
     Write-Host "  4. 重启 Codex 后从个人市场安装 deepseek-vision"
 } finally {
     # 仅删除 $tempBase 下自己创建的临时目录

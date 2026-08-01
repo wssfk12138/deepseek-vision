@@ -14,8 +14,6 @@
       "cwd": ".",
       "env_vars": [
         "MCP_OCR_PROVIDER",
-        "SILICONFLOW_API_KEY",
-        "SILICONFLOW_MODEL",
         "DASHSCOPE_API_KEY",
         "DASHSCOPE_MODEL",
         "VOLCENGINE_API_KEY",
