@@ -1,0 +1,56 @@
+# DeepSeek Vision 插件（Codex）
+
+给 Codex 里的 DeepSeek 等纯文本模型补上“眼睛”：图片分析、OCR、扫描 PDF 批量转文本、古籍影印区域保留、图片表格转可编辑表格、国际音标专项核对、DOCX 视觉渲染质检。
+
+底层视觉模型默认使用硅基流动（SiliconFlow）上的 Qwen3-VL-32B（付费，单张图片约 1 分钱），也可切换为免费的 DeepSeek-OCR 或其他 OpenAI 兼容接口。
+
+## 功能一览
+
+- 图片分析 / OCR：`analyze_image`、`ocr_extract`、`ocr_precise`（MCP 工具）
+- 剪贴板取图：截图（Win+Shift+S）后直接让模型“看图”
+- 扫描 PDF 批量转文本：分页渲染 → 水印感知 OCR → 每页文本 + 合并文档
+- 古籍影印区域：视觉检测后精确裁剪保留为图片，不做整页插图
+- 图片表格 → 可编辑 Word 表格；国际音标/语言学符号二次核对
+- DOCX 转换校验与视觉渲染检查（LibreOffice 后台运行）
+
+## 安装（接收方）
+
+### 方法一：从本仓库安装（推荐）
+
+```bash
+codex plugin marketplace add https://github.com/<你的用户名>/deepseek-vision
+codex plugin add deepseek-vision@deepseek-vision
+```
+
+然后运行安装脚本：
+
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\plugins\deepseek-vision\scripts\setup.ps1"
+```
+
+```bash
+# macOS / Linux
+bash ~/plugins/deepseek-vision/scripts/setup.sh
+```
+
+### 方法二：下载 zip 手动安装
+
+1. 下载本仓库代码（Code → Download ZIP），解压到 `%USERPROFILE%\plugins\deepseek-vision`；
+2. 运行 `scripts\setup.ps1`（Windows）或 `scripts\setup.sh`（macOS/Linux）；
+3. 编辑插件根目录 `.env`，填入**自己的** `SILICONFLOW_API_KEY`（[硅基流动](https://cloud.siliconflow.cn) 注册）；
+4. 重启 Codex，从个人市场安装 deepseek-vision。
+
+## 使用
+
+安装后直接发图或截图，说“看看这张图”；扫描 PDF 转 Word 见 `pdf-ocr-conversion` 技能；表格与音标处理见 `table-extraction` 技能。
+
+## 隐私与安全
+
+- 图片会发送到你配置的视觉 API 提供商（默认硅基流动），敏感图片请谨慎处理。
+- 本仓库不包含任何 API 密钥；每个用户必须配置自己的密钥。
+- 剪贴板取图功能仅限 Windows。
+
+## 许可
+
+MIT License（本插件封装了 MIT 协议的 [mcp-vision](https://github.com/hahahahanb/mcp-vision) 作为视觉桥接层）。

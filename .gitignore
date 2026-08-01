@@ -1,0 +1,20 @@
+# 本地密钥与运行环境（绝不提交）
+.env
+.venv/
+images/inbox/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 备份与临时文件
+*.orig.txt
+*.bak
+*.tmp
+
+# 本地报告与中间产物
+render_check/
+verification_report.*
+ipa_check_report.*
+ocr_stats.json
+page_types.json

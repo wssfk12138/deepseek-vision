@@ -1,0 +1,36 @@
+{
+    "name":  "deepseek-vision",
+    "version":  "1.1.0",
+    "description":  "视觉桥接插件：通过 MCP 为 Codex 中的 DeepSeek 等纯文本模型提供图像分析与 OCR 能力。",
+    "author":  {
+                   "name":  "Local developer"
+               },
+    "license":  "MIT",
+    "keywords":  [
+                     "deepseek",
+                     "vision",
+                     "ocr",
+                     "image-analysis",
+                     "mcp",
+                     "multimodal"
+                 ],
+    "repository":  "https://github.com/hahahahanb/mcp-vision",
+    "skills":  "./skills/",
+    "mcpServers":  "./.mcp.json",
+    "interface":  {
+                      "displayName":  "DeepSeek Vision",
+                      "shortDescription":  "为 DeepSeek 补上图像识别能力",
+                      "longDescription":  "DeepSeek 系列模型本身不支持图像输入。本插件通过 GitHub 开源方案 mcp-vision 架起视觉桥接：Codex 收到图片后，由 MCP 服务器调用 DeepSeek-OCR、Qwen-VL 等多模态视觉 API 完成分析，再把文字结果交回 DeepSeek 继续推理，让纯文本模型也能“看图说话”。支持本地图片、远程 URL 与 PDF，提供图像分析、自然语言 OCR 和精准 OCR 三类工具。",
+                      "developerName":  "Local developer",
+                      "category":  "Productivity",
+                      "capabilities":  [
+                                           "Interactive"
+                                       ],
+                      "brandColor":  "#4D6BFE",
+                      "defaultPrompt":  [
+                                            "看看这张截图里有什么？",
+                                            "提取这张图片里的所有文字",
+                                            "帮我分析这张图表的内容"
+                                        ]
+                  }
+}
