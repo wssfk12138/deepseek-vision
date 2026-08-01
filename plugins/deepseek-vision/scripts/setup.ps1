@@ -13,7 +13,7 @@ Write-Host '=== deepseek-vision 安装脚本 ===' -ForegroundColor Cyan
 
 # 1. 检查 / 安装 uv
 if (-not (Test-Path -LiteralPath $uvExe)) {
-    Write-Host '[1/5] 未检测到官方 uv，正在安装（优先官方安装器，失败则直接下载二进制）...' -ForegroundColor Yellow
+    Write-Host '[1/6] 未检测到官方 uv，正在安装（优先官方安装器，失败则直接下载二进制）...' -ForegroundColor Yellow
     try {
         Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
     } catch {
@@ -27,7 +27,7 @@ if (-not (Test-Path -LiteralPath $uvExe)) {
         Expand-Archive -LiteralPath $uvZip -DestinationPath $uvRoot -Force
     }
 } else {
-    Write-Host '[1/5] 已检测到官方 uv。' -ForegroundColor Green
+    Write-Host '[1/6] 已检测到官方 uv。' -ForegroundColor Green
 }
 
 # 确保 uv 所在目录在 PATH 中（Codex 需要能找到 uvx）
@@ -41,14 +41,14 @@ $env:PATH = "$uvRoot;$env:PATH"
 # 2. 预装 mcp-vision（Python >= 3.11）
 #    使用 uv 管理的 64 位 Python 3.12，避免系统 Python 位宽导致依赖编译失败；
 #    同时锁定 mcp<2，兼容 mcp-vision 当前版本的 FastMCP 导入路径。
-Write-Host '[2/5] 准备 Python 3.12 并安装 mcp-vision（首次运行可能需下载）...' -ForegroundColor Yellow
+Write-Host '[2/6] 准备 Python 3.12 并安装 mcp-vision（首次运行可能需下载）...' -ForegroundColor Yellow
 Get-Process -Name 'mcp-vision' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 & $uvExe python install 3.12
 & $uvExe tool install --force --python 3.12 mcp-vision --with 'mcp[cli]<2'
 if ($LASTEXITCODE -ne 0) { throw 'mcp-vision 安装失败，请检查上方错误信息。' }
 
 # 3. 批量 OCR 虚拟环境（PDF 渲染 + API 调用）
-Write-Host '[3/5] 准备批量 OCR 环境（pypdfium2 / httpx / pillow）...' -ForegroundColor Yellow
+Write-Host '[3/6] 准备批量 OCR 环境（pypdfium2 / httpx / pillow）...' -ForegroundColor Yellow
 $venvPython = Join-Path $pluginRoot '.venv\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath $venvPython)) {
     & $uvExe venv (Join-Path $pluginRoot '.venv') --python 3.12
@@ -61,18 +61,30 @@ if ($LASTEXITCODE -ne 0) { throw '批量 OCR 环境安装失败，请检查上�
 $envFile = Join-Path $pluginRoot '.env'
 if (-not (Test-Path -LiteralPath $envFile)) {
     Copy-Item -LiteralPath (Join-Path $pluginRoot 'assets\env.example') -Destination $envFile
-    Write-Host '[4/5] 已生成 .env，请打开它并填入视觉 API Key。' -ForegroundColor Green
+    Write-Host '[4/6] 已生成 .env（模板），请打开并填写 API 请求地址与 API Key。' -ForegroundColor Green
 } else {
-    Write-Host '[4/5] .env 已存在，跳过创建。' -ForegroundColor Green
+    Write-Host '[4/6] .env 已存在，跳过创建。' -ForegroundColor Green
 }
 
 # 5. 冒烟测试
-Write-Host '[5/5] 运行冒烟测试...' -ForegroundColor Yellow
+Write-Host '[5/6] 运行冒烟测试...' -ForegroundColor Yellow
 python (Join-Path $PSScriptRoot 'smoke_test.py')
 if ($LASTEXITCODE -ne 0) { throw '冒烟测试未通过，请检查视觉服务配置。' }
 
+# 6. 配置自检（强制：新用户必须配置 API 请求地址与 API Key）
+Write-Host '[6/6] 配置自检...' -ForegroundColor Yellow
+& $venvPython (Join-Path $PSScriptRoot 'check_config.py')
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ''
+    Write-Host '配置尚未完成：请编辑插件根目录 .env，填写 API 请求地址（MCP_OCR_BASE_URL）' -ForegroundColor Yellow
+    Write-Host '与 API Key（MCP_OCR_API_KEY）及视觉模型名（MCP_OCR_MODEL），然后重新运行本脚本或：' -ForegroundColor Yellow
+    Write-Host "  $venvPython scripts\check_config.py --ping" -ForegroundColor Cyan
+    throw '配置自检未通过：必须先配置 API 请求地址与 API Key 才能使用插件。'
+}
+
 Write-Host ''
 Write-Host '下一步：' -ForegroundColor Cyan
-Write-Host "  1. 编辑 $envFile，至少填入 SILICONFLOW_API_KEY（或改用其他 Provider）"
-Write-Host '  2. 在 Codex 中重新加载插件或重启会话'
-Write-Host '  3. 再次运行本脚本可复验；也可单独运行 python scripts\smoke_test.py'
+Write-Host "  1. 编辑 $envFile：custom 模式需填写 MCP_OCR_BASE_URL / MCP_OCR_API_KEY / MCP_OCR_MODEL"
+Write-Host '     （或改用 siliconflow 预设只填 SILICONFLOW_API_KEY）'
+Write-Host '  2. 运行 scripts\check_config.py --ping 验证地址与密钥'
+Write-Host '  3. 在 Codex 中重新加载插件或重启会话'

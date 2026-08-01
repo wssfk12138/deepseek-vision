@@ -26,9 +26,8 @@ from pathlib import Path
 
 import httpx
 import pypdfium2 as pdfium
-from dotenv import load_dotenv
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from vision_config import ConfigError, resolve_config
 
 IPA_RE = re.compile(r"[\u0250-\u02AF\u02B0-\u02FF\u0300-\u036F]")
 
@@ -112,7 +111,6 @@ def check_page(
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    load_dotenv(PLUGIN_ROOT / ".env")
     args = parse_args()
 
     pdf_path = Path(args.pdf)
@@ -120,12 +118,14 @@ def main() -> int:
     if not pdf_path.exists() or not ocr_dir.exists():
         print("PDF 或 OCR 目录不存在", file=sys.stderr)
         return 2
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
-    if not api_key:
-        print("未找到 SILICONFLOW_API_KEY", file=sys.stderr)
+    try:
+        cfg = resolve_config()
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
         return 2
-    model = args.model or os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-VL-32B-Instruct")
-    base_url = os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    api_key = cfg["api_key"]
+    model = args.model or cfg["model"]
+    base_url = cfg["base_url"]
 
     pages = [int(x) for x in args.pages.split(",") if x.strip()] if args.pages else find_ipa_pages(ocr_dir)
     if not pages:

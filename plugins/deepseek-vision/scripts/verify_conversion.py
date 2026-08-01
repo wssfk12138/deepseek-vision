@@ -30,9 +30,8 @@ from pathlib import Path
 
 import httpx
 import pypdfium2 as pdfium
-from dotenv import load_dotenv
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from vision_config import ConfigError, resolve_config
 
 VISION_PROMPT = (
     "第一张图片是扫描原稿页面，第二张是转换后的 Word 文档页面。"
@@ -263,7 +262,6 @@ def vision_compare(
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    load_dotenv(PLUGIN_ROOT / ".env")
     args = parse_args()
 
     pdf_path = Path(args.pdf)
@@ -273,9 +271,14 @@ def main() -> int:
         return 2
     ocr_texts = load_ocr_pages(ocr_dir)
     ignore_pages = {int(x) for x in args.ignore_pages.split(",") if x.strip()}
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
-    model = args.model or os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-VL-32B-Instruct")
-    base_url = os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    try:
+        cfg = resolve_config()
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    api_key = cfg["api_key"]
+    model = args.model or cfg["model"]
+    base_url = cfg["base_url"]
 
     tmp = Path(tempfile.mkdtemp(prefix="verify_conv_"))
     try:

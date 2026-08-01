@@ -21,9 +21,8 @@ from pathlib import Path
 
 import httpx
 import pypdfium2 as pdfium
-from dotenv import load_dotenv
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from vision_config import ConfigError, resolve_config
 
 EXTRACT_PROMPT = (
     "这是扫描书页。请把页面上所有表格提取为结构化数据，每个表格一个对象。"
@@ -103,19 +102,20 @@ def extract_tables(
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    load_dotenv(PLUGIN_ROOT / ".env")
     args = parse_args()
 
     pdf_path = Path(args.pdf)
     if not pdf_path.exists():
         print(f"PDF 不存在: {pdf_path}", file=sys.stderr)
         return 2
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
-    if not api_key:
-        print("未找到 SILICONFLOW_API_KEY", file=sys.stderr)
+    try:
+        cfg = resolve_config()
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
         return 2
-    model = args.model or os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-VL-32B-Instruct")
-    base_url = os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    api_key = cfg["api_key"]
+    model = args.model or cfg["model"]
+    base_url = cfg["base_url"]
 
     pages = parse_pages(args.pages)
     out_dir = Path(args.out)

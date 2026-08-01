@@ -7,7 +7,7 @@ scripts\package_share.ps1 -Out "C:\Users\Me\Desktop\deepseek-vision.zip" -Versio
 #>
 param(
     [string]$Out = "",
-    [string]$Version = "1.1.0"
+    [string]$Version = "1.2.0"
 )
 
 $ErrorActionPreference = 'Stop'

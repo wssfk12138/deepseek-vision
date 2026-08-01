@@ -22,9 +22,8 @@ from pathlib import Path
 
 import httpx
 import pypdfium2 as pdfium
-from dotenv import load_dotenv
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from vision_config import ConfigError, resolve_config
 
 DEFAULT_PROMPT = (
     "这是扫描版教材书页，页面上有斜体水印覆盖部分文字。"
@@ -43,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dpi", type=int, default=200, help="渲染分辨率（默认 200）")
     parser.add_argument("--workers", type=int, default=3, help="并行 OCR 数（默认 3）")
     parser.add_argument("--model", default="", help="视觉模型（默认读 .env 的 SILICONFLOW_MODEL）")
-    parser.add_argument("--base-url", default="https://api.siliconflow.cn/v1", help="OpenAI 兼容 API 地址")
+    parser.add_argument("--base-url", default="", help="OpenAI 兼容 API 地址（默认读 .env 的 MCP_OCR_BASE_URL）")
     parser.add_argument("--api-key", default="", help="API Key（默认读 .env 的 SILICONFLOW_API_KEY）")
     parser.add_argument("--max-tokens", type=int, default=4096, help="单页最大输出 token（默认 4096）")
     parser.add_argument("--prompt", default=DEFAULT_PROMPT, help="自定义 OCR 提示词")
@@ -53,10 +52,6 @@ def parse_args() -> argparse.Namespace:
         help="在每页输出末尾标记页面类型 [PAGE_TYPE:text|image]（古籍/图片页为 image）",
     )
     return parser.parse_args()
-
-
-def load_env() -> None:
-    load_dotenv(PLUGIN_ROOT / ".env")
 
 
 def render_pages(pdf_path: Path, start: int, end: int, dpi: int) -> list[tuple[int, bytes]]:
@@ -133,7 +128,6 @@ def ocr_page(
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    load_env()
     args = parse_args()
 
     pdf_path = Path(args.pdf)
@@ -144,11 +138,14 @@ def main() -> int:
     out_dir = Path(args.out) if args.out else pdf_path.parent / f"{pdf_path.stem}_ocr"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    api_key = args.api_key or os.environ.get("SILICONFLOW_API_KEY", "")
-    if not api_key:
-        print("未找到 SILICONFLOW_API_KEY，请检查插件根目录 .env", file=sys.stderr)
+    try:
+        cfg = resolve_config()
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
         return 1
-    model = args.model or os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-VL-32B-Instruct")
+    api_key = args.api_key or cfg["api_key"]
+    model = args.model or cfg["model"]
+    base_url = args.base_url or cfg["base_url"]
 
     pdf = pdfium.PdfDocument(str(pdf_path))
     total = len(pdf)
@@ -173,7 +170,7 @@ def main() -> int:
                     image_bytes,
                     model=model,
                     api_key=api_key,
-                    base_url=args.base_url,
+                    base_url=base_url,
                     prompt=args.prompt,
                     max_tokens=args.max_tokens,
                     classify=args.classify,

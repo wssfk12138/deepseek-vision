@@ -27,9 +27,8 @@ from pathlib import Path
 
 import httpx
 import pypdfium2 as pdfium
-from dotenv import load_dotenv
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from vision_config import ConfigError, resolve_config
 
 QA_PROMPT = (
     "你是文档排版质检员。请检查这张由 Word 文档渲染出的页面图片，只依据图片中真实可见的内容判断："
@@ -210,19 +209,20 @@ def vision_confirm(
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    load_dotenv(PLUGIN_ROOT / ".env")
     args = parse_args()
 
     docx_path = Path(args.docx)
     if not docx_path.exists():
         print(f"DOCX 不存在: {docx_path}", file=sys.stderr)
         return 2
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
-    if not api_key:
-        print("未找到 SILICONFLOW_API_KEY，请检查插件根目录 .env", file=sys.stderr)
+    try:
+        cfg = resolve_config()
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
         return 2
-    model = args.model or os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-VL-32B-Instruct")
-    base_url = os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    api_key = cfg["api_key"]
+    model = args.model or cfg["model"]
+    base_url = cfg["base_url"]
     soffice = find_soffice(args.soffice)
     if not soffice:
         print("未找到 LibreOffice（soffice），请先安装或指定 --soffice", file=sys.stderr)

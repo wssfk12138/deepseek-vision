@@ -45,17 +45,32 @@ bash scripts/setup.sh
 > `mcp<2` 依赖版本，以兼容 mcp-vision 当前的 FastMCP 导入方式（避免 32 位 Python
 > 触发 cryptography 源码编译、以及新版 MCP SDK 导致模块缺失）。
 
-### 2. 填入视觉 API Key
+### 2. 配置 API 请求地址与 API Key（必填）
 
-编辑插件根目录下的 `.env`。注册[硅基流动](https://cloud.siliconflow.cn)并充值后填入：
+新用户必须自行配置视觉 API 的**请求地址**和 **API Key**，插件不内置任何默认地址或密钥。编辑插件根目录下的 `.env`：
+
+```ini
+# 自备 OpenAI 兼容视觉 API（推荐）
+MCP_OCR_PROVIDER=custom
+MCP_OCR_BASE_URL=https://api.siliconflow.cn/v1
+MCP_OCR_API_KEY=sk-你的密钥
+MCP_OCR_MODEL=Qwen/Qwen3-VL-32B-Instruct
+```
+
+也可以改用预设简化配置（只填 Key，地址自动使用官方地址）：
 
 ```ini
 MCP_OCR_PROVIDER=siliconflow
 SILICONFLOW_API_KEY=sk-你的密钥
-SILICONFLOW_MODEL=Qwen/Qwen3-VL-32B-Instruct
 ```
 
-`SILICONFLOW_MODEL` 可切换为其他视觉模型（如 `Qwen/Qwen3-VL-8B-Instruct` 更便宜、`deepseek-ai/DeepSeek-OCR` 免费）；也可以改用阿里百炼、火山引擎（豆包）、OpenAI、Anthropic 或任意 OpenAI 兼容接口，完整变量见 [assets/env.example](assets/env.example)。
+填写后运行配置自检（`--ping` 会实测地址与密钥）：
+
+```powershell
+.venv\Scripts\python.exe scripts\check_config.py --ping
+```
+
+其他可选预设：dashscope（阿里百炼）、volcengine（火山引擎）、openai，完整变量见 [assets/env.example](assets/env.example)。
 
 ### 3. 在 Codex 中启用
 
