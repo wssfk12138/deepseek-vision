@@ -27,7 +27,7 @@ import pypdfium2 as pdfium
 from vision_config import ConfigError, resolve_config
 
 DETECT_PROMPT = (
-    "这是扫描的考研辅导书页。请判断："
+    "这是扫描的书页。请判断："
     "1) 本页是否整体为古籍影印/经典原文内容（竖排或繁体古书排版、影印图片，而非普通横排印刷文字）；"
     "2) 页面中是否存在独立的古籍影印区域（经典文言文原文以图片/影印形式呈现，与普通印刷正文可明显区分）。"
     "只输出 JSON：{\"whole_ancient\": true 或 false, \"regions\": [[x1,y1,x2,y2], ...]}，"

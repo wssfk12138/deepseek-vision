@@ -78,7 +78,7 @@ def coverage(needle: str, haystack: str) -> float:
 def order_positions(ocr_texts: list[str], docx_full_text: str) -> list[int]:
     """每页 OCR 文本前 40 个字符在 DOCX 中的出现位置（从上一页之后向后查找）。
 
-    返回负数表示该页内容未能在上一页之后定位（可能因真题/解析重复内容
+    返回负数表示该页内容未能在上一页之后定位（可能因书中重复内容
     导致探测片段与上一页内容交错，或顺序异常）。
     """
     haystack = normalize_text(docx_full_text)

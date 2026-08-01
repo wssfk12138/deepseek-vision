@@ -29,7 +29,7 @@ Codex + DeepSeek ◀──────────── 文字识别结果 ◀�
 
 1. **看报错截图**：程序报错时截图（Win+Shift+S），说“看看这个报错”，DeepSeek 分析错误原因并给出修复方法。
 2. **提取图片文字**：拍下书页、PPT、名片，说“提取这张图片里的所有文字”，得到可复制的文本。
-3. **扫描 PDF 转 Word**：把整本扫描真题册交给插件批量 OCR，自动忽略水印、补全被遮挡文字、保留古籍影印区域，输出可编辑 DOCX。
+3. **扫描 PDF 转 Word**：把整本扫描版文档交给插件批量 OCR，自动忽略水印、补全被遮挡文字、保留古籍影印区域，输出可编辑 DOCX。
 4. **分析图表/设计稿**：贴一张图表或 UI 设计稿，说“帮我解读这张图/分析这个界面”，得到结构化描述与建议。
 5. **图片表格转可编辑表格**：截图一张表格，说“把这张表做成 Word 表格”，插件提取单元格数据并生成真实表格（含国际音标等特殊符号）。
 6. **国际音标校对**：语言学教材中的音标页，自动对照原图二次核对 tʰ、ɕ、ʑ、˥˩ 等符号。
@@ -118,7 +118,7 @@ Codex 对话窗口对 DeepSeek 等纯文本模型不提供图片附件入口，�
 针对“拍照扫描的书籍 PDF、每页有斜体水印遮挡部分文字”的场景，插件提供批量 OCR 脚本：
 
 ```powershell
-scripts\batch_ocr.ps1 "C:\资料\717北语语纲真题册.pdf" --out "C:\资料\OCR结果"
+scripts\batch_ocr.ps1 "C:\资料\扫描书.pdf" --out "C:\资料\OCR结果"
 ```
 
 脚本自动完成：分页渲染（默认 200 DPI）→ 逐页并行调用视觉模型 OCR（默认 Qwen3-VL-32B，提示词自动忽略水印、推断被遮挡文字）→ 输出每页 `page-001.txt`、`合并文本.md` 和 `ocr_stats.json`。失败页记录在 `errors.txt`，可缩小页码范围重跑。
@@ -156,7 +156,7 @@ scripts\ipa_check.ps1 --pdf "C:\扫描书.pdf" --ocr-dir "C:\OCR结果" --out "C
 组装完 DOCX 后，运行校验脚本自动逐页对比原 PDF 与 DOCX：
 
 ```powershell
-scripts\verify_conversion.ps1 --pdf "C:\资料\717北语语纲真题册.pdf" --ocr-dir "C:\资料\OCR结果" --docx "C:\资料\转换.docx"
+scripts\verify_conversion.ps1 --pdf "C:\资料\扫描书.pdf" --ocr-dir "C:\资料\OCR结果" --docx "C:\资料\转换.docx"
 ```
 
 校验项：页面规格与页数对照、原稿每页内容覆盖率（防缺失/错乱）、全书顺序一致性、逐页对齐参考；加 `--vision-check 5` 可抽样用视觉模型比对原稿页与 DOCX 页的版式和文字。报告输出到 `verification_report.md/json`，存在 FAIL 会返回非零退出码，全部通过才建议输出。

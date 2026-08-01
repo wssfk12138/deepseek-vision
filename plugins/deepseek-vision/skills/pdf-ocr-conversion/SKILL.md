@@ -18,14 +18,14 @@ description: 把扫描版 PDF（纯图片页、带斜体水印）批量转成文
 1. **批量 OCR**：运行 `scripts/batch_ocr.py`（Windows 可用 `scripts\batch_ocr.ps1`）：
 
    ```powershell
-   scripts\batch_ocr.ps1 "C:\资料\717北语语纲真题册.pdf" --out "C:\资料\OCR结果"
+   scripts\batch_ocr.ps1 "C:\资料\扫描书.pdf" --out "C:\资料\OCR结果"
    ```
 
    脚本会：分页渲染 PNG → 逐页调用视觉模型（默认 Qwen3-VL-32B，自动忽略水印、推断被遮挡文字）→ 输出每页 `page-001.txt` 和 `合并文本.md`，并生成 `ocr_stats.json` 统计 token 用量。
 
 2. **质量检查**：抽查输出文本，重点看 `[?]` 标记（模型不确定处）和页首页尾是否有遗漏。
 3. **古籍区域检测（可选但推荐）**：对古代汉语等章节运行 `scripts/detect_ancient.py --pdf <扫描PDF> --pages "11-13,20-22" --out <目录>`，识别整页古籍与局部古籍影印区域（输出 `ancient_regions.json`，坐标为 0-1 比例）；组装 DOCX 时只裁剪嵌入这些区域图片，不做整页插图。
-4. **组装 DOCX**：按中文书籍排版规范生成 docx——封面、写在前面、目录各自独立成页；每一年真题另起一页；正文首行缩进 2 字符、1.5 倍行距；不添加任何原书之外的标注；古籍区域以裁剪图嵌入。
+4. **组装 DOCX**：按中文书籍排版规范生成 docx——封面、写在前面、目录各自独立成页；每个章节另起一页；正文首行缩进 2 字符、1.5 倍行距；不添加任何原书之外的标注；古籍区域以裁剪图嵌入。
 5. **表格转换（可选）**：对含表格的页面先跑 `scripts/table_extract.ps1` 得到结构化数据，组装 DOCX 时用 `docx_tables.py` 写入真实 Word 表格（详见 `table-extraction` 技能）。
 6. **音标专项核对（可选但推荐）**：含国际音标/语言学符号的书页运行 `scripts/ipa_check.ps1 --pdf <扫描PDF> --ocr-dir <OCR目录> --out <报告目录>`，视觉模型对照原图二次校对音标符号（如 tʰ、ɕ、ʑ、ɿ、ʅ、ŋ、ɑ、ɛ、ɔ、ʊ、˥˩），校对结果写回页码文本，原始文件备份为 `page-XXX.orig.txt`。
 7. **自动校验（输出前必做）**：运行转换校验脚本，对比原 PDF 与 DOCX：
