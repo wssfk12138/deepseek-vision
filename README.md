@@ -18,7 +18,7 @@
 ### 方法一：从本仓库安装（推荐）
 
 ```bash
-codex plugin marketplace add https://github.com/<你的用户名>/deepseek-vision
+codex plugin marketplace add https://github.com/wssfk12138/deepseek-vision
 codex plugin add deepseek-vision@deepseek-vision
 ```
 
