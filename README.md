@@ -1,44 +1,61 @@
-# DeepSeek Vision —— 适用于 Codex 的视觉识别插件
+# DeepSeek Vision — Vision Plugin for Codex
 
-> **本项目是适用于 Codex 的插件（Plugin）**，需要安装到 Codex（ChatGPT 桌面应用或 Codex CLI）中使用；它不是独立软件、网站或浏览器扩展。安装后请在 Codex 中通过 `@deepseek-vision` 或直接描述任务来调用。
+English | [中文](README.zh-CN.md)
 
-给 Codex 里的 DeepSeek 等纯文本模型补上“眼睛”：图片分析、OCR、扫描 PDF 批量转文本、古籍影印区域保留、图片表格转可编辑表格、国际音标专项核对、DOCX 视觉渲染质检。
+> **This is a Codex plugin.** It must be installed and used inside Codex (the ChatGPT desktop app or Codex CLI); it is not a standalone application, website, or browser extension. After installation, invoke it in Codex with `@deepseek-vision` or simply describe the task.
 
-底层视觉模型由用户自行配置：在 `.env` 中填写 OpenAI 兼容 API 的请求地址、密钥与模型名即可（模板见 `plugins/deepseek-vision/assets/env.example`），费用与额度取决于你选择的 API 服务商。
+DeepSeek Vision gives text-only models such as DeepSeek a pair of "eyes" inside Codex: image analysis, OCR, batch conversion of scanned PDFs to text, preservation of ancient-book facsimile regions, extraction of image tables into editable Word tables, dedicated verification of IPA (International Phonetic Alphabet) symbols, and visual render QA before DOCX delivery.
 
-## 重要前提：DeepSeek 是纯文本模型
+The underlying vision model is entirely up to you: fill in an OpenAI-compatible API base URL, key, and model name in `.env` (template at `plugins/deepseek-vision/assets/env.example`). Usage and cost depend on the API provider you choose.
 
-**DeepSeek 不支持直接接收图像**，无法把图片作为输入“发”给它。本插件通过读取**系统剪贴板**中的图片（截图 `Win + Shift + S` 或复制图片即可，无需上传文件），交给用户自行配置的视觉 API 识别成文字，再由 DeepSeek 基于文字继续推理。
+## Why this plugin exists: DeepSeek is a text-only model
 
-## 典型使用场景
+**DeepSeek cannot receive images directly** — you cannot "send" an image to it as input. That is exactly the gap this plugin fills:
 
-- 程序报错截图 → 分析原因并给出修复方法
-- 书页 / PPT / 名片 → 一键提取文字（OCR）
-- 扫描版 PDF 文档 → 批量转可编辑 DOCX（忽略水印、补全遮挡文字、保留古籍影印）
-- 图表 / UI 设计稿 → 结构化解读与建议
-- 图片表格 → 提取为可编辑 Word 表格（含国际音标等特殊符号）
-- 语言学教材音标页 → 对照原图二次核对
-- DOCX 交付前 → 自动渲染质检
+1. You take a screenshot (`Win + Shift + S`) or copy an image.
+2. The plugin reads the image from the **system clipboard** (no file upload or image-attachment UI needed) or from a local path.
+3. The image is handed to the vision API you configured, which recognizes it and returns text.
+4. DeepSeek continues reasoning, answering, or writing code based on that text.
 
-## 功能一览
+In short: images are never sent to DeepSeek — the plugin "looks" at them on its behalf and relays what it sees as text.
 
-- 图片分析 / OCR：`analyze_image`、`ocr_extract`、`ocr_precise`（MCP 工具）
-- 剪贴板取图：截图（Win+Shift+S）后直接让模型“看图”
-- 扫描 PDF 批量转文本：分页渲染 → 水印感知 OCR → 每页文本 + 合并文档
-- 古籍影印区域：视觉检测后精确裁剪保留为图片，不做整页插图
-- 图片表格 → 可编辑 Word 表格；国际音标/语言学符号二次核对
-- DOCX 转换校验与视觉渲染检查（LibreOffice 后台运行）
+## How it works
 
-## 安装（接收方）
+```text
+You screenshot/copy an image ──▶ Plugin reads clipboard or local path ──▶ deepseek-vision MCP server ──▶ Vision API
+                                                                (mcp-vision)                             │
+Codex + DeepSeek ◀────────────── text recognition result ◀────────────────────────────────────────────────┘
+```
 
-### 方法一：从本仓库安装（推荐）
+## Features
+
+- Image analysis / OCR via MCP tools: `analyze_image`, `ocr_extract`, `ocr_precise`
+- Clipboard image capture: screenshot (`Win + Shift + S`) and ask the model to "look" at it
+- Batch OCR of scanned PDFs: page rendering → watermark-aware OCR → per-page text + merged document
+- Ancient-book facsimile regions: detected and embedded as cropped images instead of full-page illustrations
+- Image tables → editable Word tables; dedicated IPA / linguistic-symbol second-pass verification
+- DOCX conversion verification and visual render checks (headless LibreOffice)
+
+## Typical use cases
+
+- Error screenshot → analyze the cause and suggest a fix
+- Book page / PPT / business card → one-shot text extraction (OCR)
+- Scanned PDF documents → batch conversion to editable DOCX (ignore watermarks, reconstruct obscured text, preserve ancient-book facsimiles)
+- Chart / UI design mockup → structured interpretation and suggestions
+- Image table → editable Word table (including special symbols such as IPA)
+- IPA pages in linguistics textbooks → second-pass verification against the original image
+- Before delivering a DOCX → automatic render QA
+
+## Installation (for users)
+
+### Option 1: Install from this repository (recommended)
 
 ```bash
 codex plugin marketplace add https://github.com/wssfk12138/deepseek-vision
 codex plugin add deepseek-vision@deepseek-vision
 ```
 
-然后运行安装脚本：
+Then run the setup script:
 
 ```powershell
 # Windows
@@ -50,23 +67,51 @@ powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\plugins\deepseek-visi
 bash ~/plugins/deepseek-vision/scripts/setup.sh
 ```
 
-### 方法二：下载 zip 手动安装
+### Option 2: Manual install from ZIP
 
-1. 下载本仓库代码（Code → Download ZIP），解压到 `%USERPROFILE%\plugins\deepseek-vision`；
-2. 运行 `scripts\setup.ps1`（Windows）或 `scripts\setup.sh`（macOS/Linux）；
-3. 编辑插件根目录 `.env`，填入**自己的** API 请求地址、密钥与模型名（模板见 `assets/env.example`）；
-4. 重启 Codex，从个人市场安装 deepseek-vision。
+1. Download this repository (Code → Download ZIP) and extract it to `%USERPROFILE%\plugins\deepseek-vision`.
+2. Run `scripts\setup.ps1` (Windows) or `scripts\setup.sh` (macOS/Linux).
+3. Edit `.env` in the plugin root and fill in **your own** API base URL, key, and model name (see `assets/env.example`).
+4. Restart Codex and install deepseek-vision from the personal marketplace.
 
-## 使用
+## Configuration
 
-安装后直接发图或截图，说“看看这张图”；扫描 PDF 转 Word 见 `pdf-ocr-conversion` 技能；表格与音标处理见 `table-extraction` 技能。
+The plugin ships with no default API endpoint or key — you must configure your own vision API in `.env`:
 
-## 隐私与安全
+```ini
+# OpenAI-compatible vision API (recommended)
+MCP_OCR_PROVIDER=custom
+MCP_OCR_BASE_URL=https://api.example.com/v1
+MCP_OCR_API_KEY=sk-your-key
+MCP_OCR_MODEL=Qwen/Qwen3-VL-32B-Instruct
+```
 
-- 图片会发送到你配置的视觉 API 提供商，敏感图片请谨慎处理。
-- 本仓库不包含任何 API 密钥；每个用户必须配置自己的密钥。
-- 剪贴板取图功能仅限 Windows。
+Verify the configuration (the `--ping` flag actually tests the endpoint and key):
 
-## 许可
+```powershell
+.venv\Scripts\python.exe scripts\check_config.py --ping
+```
 
-MIT License（本插件封装了 MIT 协议的 [mcp-vision](https://github.com/hahahahanb/mcp-vision) 作为视觉桥接层）。
+Provider presets are available in `scripts/vision_config.py`; see `assets/env.example` for the full configuration template.
+
+## Usage
+
+After installation, paste or screenshot an image and say "look at this image". The plugin's `image-analysis` skill routes the request automatically — no manual tool invocation needed. Scanned-PDF-to-Word workflows are documented in the `pdf-ocr-conversion` skill, tables and IPA verification in the `table-extraction` skill, and render QA in the `visual-render-check` skill.
+
+### Sending images in chat (clipboard workflow)
+
+1. Take a screenshot (`Win + Shift + S`) or copy any image (`Ctrl + C`).
+2. Back in the Codex conversation, say "analyze the image I just copied" or "look at this screenshot".
+3. The plugin automatically saves the image from the clipboard (`images/inbox/`) and hands it to the vision model — no manual file saving needed.
+
+You can also save a screenshot as a file and pass its path directly (e.g. `C:\Users\...\screenshot.png`); the plugin supports that too.
+
+## Privacy & security
+
+- Images are sent to the vision API provider you configure; handle sensitive images with care.
+- This repository contains no API keys; every user must configure their own.
+- The clipboard capture feature is Windows-only.
+
+## License
+
+MIT License. This plugin wraps the MIT-licensed [mcp-vision](https://github.com/hahahahanb/mcp-vision) as the vision bridge.
